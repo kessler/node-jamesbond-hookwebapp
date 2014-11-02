@@ -1,0 +1,28 @@
+{
+  "name": "jamesbond-hookwebapp",
+  "version": "0.0.2",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "dependencies": {
+    "connect": "^3.3.2",
+    "rc": "^0.5.3"
+  },
+  "author": "Yaniv Kessler",
+  "bugs": {
+    "url": "https://github.com/kessler/jamesbond-hookwebapp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kessler/jamesbond-hookwebapp"
+  },
+  "homepage": "https://github.com/kessler/jamesbond-hookwebapp",
+  "license": "MIT",
+  "devDependencies": {
+    "request": "^2.47.0",
+    "should": "^4.1.0",
+    "yalla": "0.0.3"
+  }
+}

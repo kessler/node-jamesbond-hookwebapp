@@ -1,4 +1,4 @@
-module.exports = function (log, broadcaster, events) {
+module.exports = function (log, broadcaster) {
 
 	return function broadcast (request, response, next) {
 		log.debug('broadcast middleware')
@@ -15,7 +15,7 @@ module.exports = function (log, broadcaster, events) {
 		}
 
 		// bail if its not a push event
-		if (events.indexOf(event) === -1) {
+		if (request.app.events.indexOf(event) === -1) {
 			log.warn('ignoring [%s] event', event)
 			return next();
 		}

@@ -235,14 +235,16 @@ describe('hookwebapp', function () {
 	})
 
 	describe('broadcast middleware', function () {
-		var mockApp = {}
+		var mockApp = {
+			events: ['push']
+		}
 		var event, app
 		var mockBroadcaster = function(e, a) {
 			event = e
 			app = a
 		}
 
-		var broadcast = require('../middleware/broadcast')(util.log, mockBroadcaster, ['push'])
+		var broadcast = require('../middleware/broadcast')(util.log, mockBroadcaster)
 
 		beforeEach(function () {
 			event = undefined
@@ -273,7 +275,8 @@ describe('hookwebapp', function () {
 	describe('integration', function () {
 		this.timeout(6000)
 		var mockApp = {
-			secret: 'secret'
+			secret: 'secret',
+			events: ['push']
 		}
 
 		var mockDb = {

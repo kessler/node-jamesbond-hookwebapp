@@ -61,18 +61,9 @@ describe('hookwebapp', function () {
 		it('extracts the repository name', function (done) {
 			var mockRequest = { payload: util.payload }
 			
-			parsePayload(mockRequest, null, function() {
-				mockRequest.should.have.property('repositoryName', 'testy')
-				done()
-			})	
-		})
-
-		it('extracts the branch', function (done) {
-			var mockRequest = { payload: util.payload }
-			
-			parsePayload(mockRequest, null, function() {
-				mockRequest.should.have.property('branch', 'master')
-				done()
+			parsePayload(mockRequest, null, function(err) {
+				mockRequest.should.have.property('appKey', 'kessler/testy#master')
+				done(err)
 			})	
 		})
 
@@ -97,7 +88,7 @@ describe('hookwebapp', function () {
 		})
 
 		it('calls back with an error if the repository name is missing', function (done) {
-			var mockRequest = { payload: '{ "repository": { "name": "" }}' }
+			var mockRequest = { payload: '{ "repository": { "full_name": "" }}' }
 			
 			parsePayload(mockRequest, null, function(err) {				
 				err.should.be.an.Error
@@ -107,7 +98,7 @@ describe('hookwebapp', function () {
 		})
 
 		it('calls back with an error if the branch is missing', function (done) {
-			var mockRequest = { payload: '{ "ref": "", "repository": { "name": "123"} }' }
+			var mockRequest = { payload: '{ "ref": "", "repository": { "full_name": "123"} }' }
 			
 			parsePayload(mockRequest, null, function(err) {
 				err.should.be.an.Error
@@ -121,7 +112,7 @@ describe('hookwebapp', function () {
 		var mockApp = {}
 		var mockDb = {
 			getApp: function(name, callback) {
-				if (name === 'testy') return callback(null, mockApp)
+				if (name === 'kessler/testy#master') return callback(null, mockApp)
 				callback(new Error('missing app'))
 			}
 		}
@@ -129,7 +120,7 @@ describe('hookwebapp', function () {
 		var loadApp = require('../middleware/loadApp')(util.log, mockDb)
 
 		it('loads an app from the database', function (done) {
-			var mockRequest = { repositoryName: 'testy' }
+			var mockRequest = { appKey: 'kessler/testy#master' }
 
 			loadApp(mockRequest, null, function () {
 				mockRequest.should.have.property('app', mockApp)
@@ -142,13 +133,13 @@ describe('hookwebapp', function () {
 			
 			loadApp(mockRequest, null, function(err) {
 				err.should.be.an.Error
-				err.message.should.eql('missing repository name')
+				err.message.should.eql('missing app key')
 				done()
 			})
 		})
 
 		it('calls back with an error if app is not in the database', function (done) {
-			var mockRequest = { repositoryName: 'doesNotExist' }
+			var mockRequest = { appKey: 'doesNotExist' }
 			
 			loadApp(mockRequest, null, function(err) {
 				err.should.be.an.Error
@@ -281,7 +272,7 @@ describe('hookwebapp', function () {
 
 		var mockDb = {
 			getApp: function(name, callback) {
-				if (name === 'testy') return callback(null, mockApp)
+				if (name === 'kessler/testy#master') return callback(null, mockApp)
 				callback(new Error('missing app'))
 			}
 		}

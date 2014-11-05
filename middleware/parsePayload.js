@@ -17,27 +17,27 @@ module.exports = function (log) {
 			return next(e)
 		}
 
-		request.repositoryName = parsedPayload.repository.name
+		var repositoryName = parsedPayload.repository.full_name
 
-		if (!request.repositoryName) {
+		if (!repositoryName) {
 			return next(new Error('missing repository name'))
-		} else {
-			log.info('repository name is %s', request.repositoryName)	
 		}
 
-		request.branch = parsedPayload.ref.split('/')
+		var branch = parsedPayload.ref.split('/')
 
-		if (request.branch.length === 0) {
+		if (branch.length === 0) {
 			return next(new Error('missing branch name'))
 		}
 
-		request.branch = request.branch[request.branch.length - 1]
+		branch = branch[branch.length - 1]
 
-		if (!request.branch) {
+		if (!branch) {
 			return next(new Error('missing branch name'))	
 		}
 
-		log.info('branch is %s', request.branch)
+		request.appKey = repositoryName + '#' + branch
+
+		log.info('key is [%s]', request.appKey)
 		
 		next()
 	}

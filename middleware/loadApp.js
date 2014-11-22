@@ -2,15 +2,31 @@ module.exports = function (log, db) {
 	return function loadApp (request, response, next) {
 		log.debug('loadApp middleware')
 		
-		if (!request.appKey) {
-			return next(new Error('missing app key'))
+		if (!request.repositoryName) {
+		 	return next(new Error('missing repository name'))
 		}
 
-		db.getApp(request.appKey, function (err, app) {
-			if (err) return next(err)
+		if (!request.branch) {
+		 	return next(new Error('missing branch'))
+		}
 
-			request.app = app
-			next()
+		// if we fail to get app by repo name, try with branch too in the key
+		db.getApp(request.repositoryName, function (err, app) {
+			if (err) {
+				return db.getApp(request.repositoryName + '#' + request.branch, appCallback)
+			}
+
+			appCallback(null, app)
 		})
+
+		function appCallback(err, app) {
+			if (err) return next(err)
+			
+			if (app.branch === request.branch) {				
+				request.app = app
+			}
+
+			next()
+		}
 	}
 }

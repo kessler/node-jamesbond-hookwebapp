@@ -62,7 +62,8 @@ describe('hookwebapp', function () {
 			var mockRequest = { payload: util.payload }
 			
 			parsePayload(mockRequest, null, function(err) {
-				mockRequest.should.have.property('appKey', 'kessler/testy#master')
+				mockRequest.should.have.property('repositoryName', 'kessler/testy')
+				mockRequest.should.have.property('branch', 'master')
 				done(err)
 			})	
 		})
@@ -109,7 +110,7 @@ describe('hookwebapp', function () {
 	})
 
 	describe('loadApp middleware', function () {
-		var mockApp = {}
+		var mockApp = { branch: 'master' }
 		var mockDb = {
 			getApp: function(name, callback) {
 				if (name === 'kessler/testy#master') return callback(null, mockApp)
@@ -120,9 +121,10 @@ describe('hookwebapp', function () {
 		var loadApp = require('../middleware/loadApp')(util.log, mockDb)
 
 		it('loads an app from the database', function (done) {
-			var mockRequest = { appKey: 'kessler/testy#master' }
+			var mockRequest = { repositoryName: 'kessler/testy', branch: 'master' }
 
-			loadApp(mockRequest, null, function () {
+			loadApp(mockRequest, null, function (err) {
+				should(err).be.undefined
 				mockRequest.should.have.property('app', mockApp)
 				done()
 			})
@@ -132,14 +134,22 @@ describe('hookwebapp', function () {
 			var mockRequest = { }
 			
 			loadApp(mockRequest, null, function(err) {
-				err.should.be.an.Error
-				err.message.should.eql('missing app key')
+				err.message.should.eql('missing repository name')
+				done()
+			})
+		})
+
+		it('calls back with an error if branch is missing', function (done) {
+			var mockRequest = { repositoryName: 'lalala' }
+			
+			loadApp(mockRequest, null, function(err) {
+				err.message.should.eql('missing branch')
 				done()
 			})
 		})
 
 		it('calls back with an error if app is not in the database', function (done) {
-			var mockRequest = { appKey: 'doesNotExist' }
+			var mockRequest = { repositoryName: 'doesNotExist', branch: 'of a tree' }
 			
 			loadApp(mockRequest, null, function(err) {
 				err.should.be.an.Error
@@ -267,7 +277,9 @@ describe('hookwebapp', function () {
 		this.timeout(6000)
 		var mockApp = {
 			secret: 'secret',
-			events: ['push']
+			events: ['push'], 
+			repositoryName: 'kessler/testy',
+			branch: 'master'
 		}
 
 		var mockDb = {

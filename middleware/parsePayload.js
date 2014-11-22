@@ -35,9 +35,12 @@ module.exports = function (log) {
 			return next(new Error('missing branch name'))	
 		}
 
-		request.appKey = repositoryName + '#' + branch
+		request.branch = branch
+		request.repositoryName = repositoryName
 
-		log.info('key is [%s]', request.appKey)
+		// request.appKey = repositoryName + '#' + branch
+
+		// log.info('key is [%s]', request.appKey)
 		
 		next()
 	}

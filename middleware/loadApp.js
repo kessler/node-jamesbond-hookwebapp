@@ -19,14 +19,16 @@ module.exports = function (log, db) {
 			appCallback(null, app)
 		})
 
+		// if we succeed in loading the app, but the branches dont match we'll check if there is another app with user/repo#branch key
 		function appCallback(err, app) {
 			if (err) return next(err)
-			
+
 			if (app.branch === request.branch) {				
 				request.app = app
+				next()
+			} else {
+				db.getApp(request.repositoryName + '#' + request.branch, appCallback)	
 			}
-
-			next()
 		}
 	}
 }

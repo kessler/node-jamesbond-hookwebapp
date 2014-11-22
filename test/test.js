@@ -120,12 +120,34 @@ describe('hookwebapp', function () {
 
 		var loadApp = require('../middleware/loadApp')(util.log, mockDb)
 
-		it('loads an app from the database', function (done) {
+		it('loads an app from the database, if user/repo is not found, load repo/user#branch', function (done) {
 			var mockRequest = { repositoryName: 'kessler/testy', branch: 'master' }
 
 			loadApp(mockRequest, null, function (err) {
 				should(err).be.undefined
 				mockRequest.should.have.property('app', mockApp)
+				done()
+			})
+		})
+
+		it('loads an app from the database, if user/repo is found but branches dont match, try loading user/repo#branch', function (done) {
+			var mockApp1 = { branch: 'master' }
+			var mockApp2 = { branch: 'branchy' }
+			var mockDb1 = {
+				getApp: function(name, callback) {
+					if (name === 'kessler/testy') return callback(null, mockApp1)
+					if (name === 'kessler/testy#branchy') return callback(null, mockApp2)
+					callback(new Error('missing app'))
+				}
+			}
+
+			var loadApp = require('../middleware/loadApp')(util.log, mockDb1)
+
+			var mockRequest = { repositoryName: 'kessler/testy', branch: 'branchy' }
+
+			loadApp(mockRequest, null, function (err) {
+				should(err).be.undefined
+				mockRequest.should.have.property('app', mockApp2)
 				done()
 			})
 		})
